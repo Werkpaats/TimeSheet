@@ -19,7 +19,7 @@
         }
 
         @media only screen and (min-width: 767px) {
-            
+
             .rotation-wrapper-outer {
                 display: table;
             }
@@ -59,14 +59,22 @@
         .ui.celled.table>tr>td:first-child,
         .ui.celled.table>tr>th:first-child {
             border-left: none;
-            width: 103px;
+            width: 117px;
         }
     </style>
 </head>
 
 <body>
     <main class="ui container">
-        <h1 class="ui header"></h1>
+        <div class="ui text menu">
+            <a class="browse item">
+                <h1 class="ui header"></h1>
+            </a>
+            <div class="ui right item">
+                <button class="ui logout button">Logout</button>
+            </div>
+        </div>
+
         <form class="ui form">
             <table class="ui celled  striped table">
                 <thead>
@@ -98,7 +106,10 @@
                 $('.header').html(teacher)
                 renderCourses(courses)
             });
-
+            let logoutBtn = $('.logout.button').click(() => {
+                localforage.clear();
+                window.location.assign("./login.html")
+            })
 
             function renderCourses(courses) {
 
@@ -115,7 +126,7 @@
                 let amountOfDays = 14
                 for (let day = 1; day < amountOfDays; day++) {
                     let date = moment().subtract(8 - day, 'days').format("DD-MM-YYYY");
-                    let formattedDate = moment().subtract(8 - day, 'days').format("DD-MMM-YYYY");
+                    let formattedDate = moment().subtract(8 - day, 'days').format("ddd-MMM-YYYY");
                     let td = `<td>${formattedDate}</td>`
 
                     courses.forEach((course) => {
@@ -144,21 +155,19 @@
             $('.ui.form').form({
                 inline: true,
                 onSuccess: function (event, fields) {
-                    console.log("success")
-                    console.log(fields)
-                    // $(".submit.button").addClass("disabled loading");
-                    // addRecord(fields).then((value) => {
-                    //     console.log(value)
-                    //     alert("Records have been added!")
-                    //     $(".submit.button").removeClass(
-                    //         "disabled loading");
-                    // }).catch(err => {
-                    //     console.log(err);
+                    $(".submit.button").addClass("disabled loading");
+                    addRecord(fields).then((value) => {
+                        console.log(value)
+                        alert("Records have been added!")
+                        $(".submit.button").removeClass(
+                            "disabled loading");
+                    }).catch(err => {
+                        console.log(err);
 
-                    //     $(".submit.button").removeClass(
-                    //         "disabled loading");
-                    //     alert("There was an error, record wasn't added")
-                    // })
+                        $(".submit.button").removeClass(
+                            "disabled loading");
+                        alert("There was an error, record wasn't added")
+                    })
 
                     return false
                 },
