@@ -18,24 +18,29 @@
             margin: 2em;
         }
 
-        .rotation-wrapper-outer {
-            display: table;
+        @media only screen and (min-width: 767px) {
+            
+            .rotation-wrapper-outer {
+                display: table;
+            }
+
+            .rotation-wrapper-inner {
+                padding: 0 0 100% 0;
+                height: 0;
+            }
+
+            .element-to-rotate {
+                display: block;
+                transform-origin: top left;
+                transform: rotate(-90deg) translate(-100%);
+                /* transform: rotate(90deg) translate(0, -100%); */
+                margin-top: -50%;
+
+                white-space: nowrap;
+            }
+
         }
 
-        .rotation-wrapper-inner {
-            padding: 0 0 100% 0;
-            height: 0;
-        }
-
-        .element-to-rotate {
-            display: block;
-            transform-origin: top left;
-            transform: rotate(-90deg) translate(-100%);
-            /* transform: rotate(90deg) translate(0, -100%); */
-            margin-top: -50%;
-
-            white-space: nowrap;
-        }
 
         input[type=number]::-webkit-inner-spin-button,
         input[type=number]::-webkit-outer-spin-button {
@@ -107,7 +112,7 @@
                         </div></th>
                         `)
                 });
-                let amountOfDays =14
+                let amountOfDays = 14
                 for (let day = 1; day < amountOfDays; day++) {
                     let date = moment().subtract(8 - day, 'days').format("DD-MM-YYYY");
                     let formattedDate = moment().subtract(8 - day, 'days').format("DD-MMM-YYYY");
