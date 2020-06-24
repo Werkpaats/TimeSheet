@@ -45,6 +45,17 @@
         input[type=number] {
             -moz-appearance: textfield;
         }
+
+        .ui.celled.table>tbody>tr>td:first-child,
+        .ui.celled.table>tbody>tr>th:first-child,
+        .ui.celled.table>tfoot>tr>td:first-child,
+        .ui.celled.table>tfoot>tr>th:first-child,
+        .ui.celled.table>thead>tr>th:first-child,
+        .ui.celled.table>tr>td:first-child,
+        .ui.celled.table>tr>th:first-child {
+            border-left: none;
+            width: 103px;
+        }
     </style>
 </head>
 
@@ -74,6 +85,7 @@
         $(async function () {
             let teacher = "";
             let courses = [];
+            let fieldsToValidate = [];
             await localforage.getItem('session', function (err, value) {
                 if (!value) window.location.assign("./login.html")
                 teacher = value.name;
@@ -84,6 +96,7 @@
 
 
             function renderCourses(courses) {
+
                 $('thead tr').append(`<th>Date</th>`);
 
                 courses.forEach(course => {
@@ -94,56 +107,77 @@
                         </div></th>
                         `)
                 });
-                for (let day = 1; day < 8; day++) {
-                    let date = moment().subtract(8 - day, 'days').format("YYYY-MM-DD")
-                    let td = `<td>${date}</td>`
+                let amountOfDays =14
+                for (let day = 1; day < amountOfDays; day++) {
+                    let date = moment().subtract(8 - day, 'days').format("DD-MM-YYYY");
+                    let formattedDate = moment().subtract(8 - day, 'days').format("DD-MMM-YYYY");
+                    let td = `<td>${formattedDate}</td>`
+
                     courses.forEach((course) => {
                         td +=
                             `<td>
                                 <div class="field">
-                                    <input type="number" max="24" name="${course}:${date}" value="0">
+                                    <input type="number" max="24" name="${course}:${date}">
                                 </div>
                             </td>`
-                        $('.ui.form').form('add fields', [`${course}:${date}`])
-                        $('.ui.form').form('add field', `${course}:${date}`, {
-                            rules: [{
-                                type: 'empty',
-                                prompt: 'Field can not be empty'
-                            },
-                            {
-                                type: 'number',
-                                prompt: 'Field most be a number'
-                            }
-                            ]
-                        })
+
+                        fieldsToValidate.push(`${course}:${date}`)
                     })
                     $('tbody').append(`<tr>${td}<tr>`)
-                    $('.ui.form').form({
-                        inline: true,
-                        onSuccess: function (event, fields) {
-                            $(".submit.button").addClass("disabled loading");
-                            addRecord(fields).then((value) => {
-                                console.log(value)
-                                alert("Records have been added!")
-                                $(".submit.button").removeClass(
-                                    "disabled loading");
-                            }).catch(err => {
-                                console.log(err);
 
-                                $(".submit.button").removeClass(
-                                    "disabled loading");
-                                alert("There was an error, record wasn't added")
-                            })
-                            return false
-                        },
-                        onFailure: function (event, fields) {
-                            console.log("fail")
-                            return false
-                        },
-                    })
+
                 }
 
             }
+            $.fn.form.settings.rules.maxNum = function (value, condition) {
+                return (value <= condition) ? true : false
+            }
+            $.fn.form.settings.rules.minNum = function (value, condition) {
+                return (!value || value >= condition) ? true : false
+            }
+
+            $('.ui.form').form({
+                inline: true,
+                onSuccess: function (event, fields) {
+                    console.log("success")
+                    console.log(fields)
+                    // $(".submit.button").addClass("disabled loading");
+                    // addRecord(fields).then((value) => {
+                    //     console.log(value)
+                    //     alert("Records have been added!")
+                    //     $(".submit.button").removeClass(
+                    //         "disabled loading");
+                    // }).catch(err => {
+                    //     console.log(err);
+
+                    //     $(".submit.button").removeClass(
+                    //         "disabled loading");
+                    //     alert("There was an error, record wasn't added")
+                    // })
+
+                    return false
+                },
+                onFailure: function (event, fields) {
+                    console.log("fail")
+                    return false
+                },
+            })
+            fieldsToValidate.forEach(field => {
+
+                $('.ui.form').form('add rule', field, {
+                    rules: [{
+                            type: 'maxNum[24]',
+                            prompt: 'Field can not be empty'
+                        },
+                        {
+                            type: 'minNum[0]',
+                            prompt: 'Field can not be empty'
+                        }
+                    ]
+                })
+            })
+
+
 
             function addRecord(fields) {
                 return new Promise((resolve, reject) => {
@@ -174,32 +208,8 @@
                         .catch(err => reject(err))
                 })
 
-
             }
-            // function fetchCourses(email, password) {
-            //     return new Promise((resolve, reject) => {
-            // const url =
-            //     "https://script.google.com/macros/s/AKfycbyUFgmcKZ8d_fNqVu21UX1rLGUaHObnaSgbqvUyEbYTsmzbfj2J/exec";
-            //         const payload = {
-            //             action: "getCourses",
-            //             fields: {
-            //                 email: email,
-            //                 password: password,
-            //             },
-            //         };
-            // const options = {
-            //     method: "POST",
-            //     headers: {
-            //         "Content-Type": "text/plain",
-            //     },
-            //     body: JSON.stringify(payload),
-            // };
-            // fetch(url, options)
-            //     .then(response => response.json())
-            //     .then(data => resolve(data))
-            //     .catch(err => reject(err))
-            //     });
-            // }
+
         });
     </script>
 </body>
