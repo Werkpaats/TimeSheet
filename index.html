@@ -36,6 +36,15 @@
 
             white-space: nowrap;
         }
+
+        input[type=number]::-webkit-inner-spin-button,
+        input[type=number]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+        }
+
+        input[type=number] {
+            -moz-appearance: textfield;
+        }
     </style>
 </head>
 
@@ -76,17 +85,7 @@
 
             function renderCourses(courses) {
                 $('thead tr').append(`<th>Date</th>`);
-                // for (let day = 1; day < 8; day++) {
-                //     // $('thead tr').append(`<th>${moment().subtract(8 - day, 'days').format("MMM DD, YYYY")}</th>` )
-                //     $('thead tr').append(
-                //         `<th><div class="rotation-wrapper-outer">
-                //             <div class="rotation-wrapper-inner">
-                //             <p class="element-to-rotate">${moment().subtract(8 - day, 'days').format("MMM DD, YYYY")}</p>
-                //             </div>    
-                //         </div></th>
-                //         `)
 
-                // }
                 courses.forEach(course => {
                     $('thead tr').append(`<th><div class="rotation-wrapper-outer">
                             <div class="rotation-wrapper-inner">
@@ -110,14 +109,18 @@
                             rules: [{
                                 type: 'empty',
                                 prompt: 'Field can not be empty'
-                            }]
+                            },
+                            {
+                                type: 'number',
+                                prompt: 'Field most be a number'
+                            }
+                            ]
                         })
                     })
                     $('tbody').append(`<tr>${td}<tr>`)
                     $('.ui.form').form({
                         inline: true,
                         onSuccess: function (event, fields) {
-                            console.log(fields)
                             $(".submit.button").addClass("disabled loading");
                             addRecord(fields).then((value) => {
                                 console.log(value)
@@ -139,63 +142,23 @@
                         },
                     })
                 }
-                // courses.forEach(course => {
-                //     let td = `<td>${course.charAt(0).toUpperCase() + course.slice(1)}</td>`
 
-                //     for (let day = 1; day < 8; day++) {
-                //         let date = moment().subtract(8 - day, 'days').format("YYYY-MM-DD")
-                //         td +=
-                //             `<td>
-                //                 <div class="field">
-                //                     <input type="number" max="24" name="${course}:${date}" value="0">
-                //                 </div>
-                //             </td>`
-                // $('.ui.form').form('add fields', [`${course}:${date}`])
-                // $('.ui.form').form('add field', `${course}:${date}`, {
-                //     rules: [{
-                //         type: 'empty',
-                //         prompt: 'Field can not be empty'
-                //     }]
-                // })
-                //     }
-                //     $('tbody').append(`<tr>${td}<tr>`)
-
-
-                // $('.ui.form').form({
-                //     inline: true,
-                //     onSuccess: function (event, fields) {
-                //         $(".submit.button").addClass("disabled loading");
-                //         addRecord(fields).then((value) => {
-                //             console.log(value)
-                //             alert("Records have been added!")
-                //             $(".submit.button").removeClass(
-                //                 "disabled loading");
-                //         }).catch(err => {
-                //             console.log(err);
-
-                //             $(".submit.button").removeClass(
-                //                 "disabled loading");
-                //             alert("There was an error, record wasn't added")
-                //         })
-                //         return false
-                //     },
-                //     onFailure: function (event, fields) {
-                //         console.log("fail")
-                //         return false
-                //     },
-                // })
-                // });
             }
 
             function addRecord(fields) {
                 return new Promise((resolve, reject) => {
+                    let data = {}
+                    for (field in fields) {
+                        if (parseInt(fields[field]) > 0) data[field] = parseInt(fields[field]);
+                    }
+
                     const url =
                         "https://script.google.com/macros/s/AKfycbyUFgmcKZ8d_fNqVu21UX1rLGUaHObnaSgbqvUyEbYTsmzbfj2J/exec";
                     let payload = {
                         action: "addRecord",
                         data: {
                             name: teacher,
-                            fields: fields
+                            fields: data
                         }
                     }
                     const options = {
