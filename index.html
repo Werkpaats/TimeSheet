@@ -125,8 +125,8 @@
                 });
                 let amountOfDays = 14
                 for (let day = 1; day < amountOfDays; day++) {
-                    let date = moment().subtract(8 - day, 'days').format("DD-MM-YYYY");
-                    let formattedDate = moment().subtract(8 - day, 'days').format("ddd-MMM-YYYY");
+                    let date = moment().subtract(day, 'days').format("DD-MM-YYYY");
+                    let formattedDate = moment().subtract(day, 'days').format("ddd-MMM-YYYY");
                     let td = `<td>${formattedDate}</td>`
 
                     courses.forEach((course) => {
