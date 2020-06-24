@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hour Registration | Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.6/semantic.min.css" />
+    <style type="text/css">
+        html body {
+            background-color: #f5f5f6;
+            font-family: "Roboto", lato, Helvetica, Arial, sans-serif;
+            height: 100%;
+            width: 100%;
+        }
+
+        body>.grid {
+            height: 100%;
+        }
+
+        .image {
+            margin-top: -100px;
+        }
+
+        .column {
+            max-width: 450px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="ui middle aligned center aligned grid">
+        <div class="column">
+            <h2 class="ui teal image header">
+                <!---<img src="" class="image">-->
+                <div class="content">
+                    Log-in
+                </div>
+            </h2>
+            <div class="ui large form">
+                <div class="ui segment">
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="user icon"></i>
+                            <input type="text" name="email" placeholder="E-mail address" />
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="ui left icon input">
+                            <i class="lock icon"></i>
+                            <input type="password" name="password" placeholder="Password" />
+                        </div>
+                    </div>
+                    <div class="ui fluid large teal submit button">Login</div>
+                </div>
+                <div class="ui error message"></div>
+            </div>
+            <div class="ui hidden negative message">
+                Incorrect email or password combination
+            </div>
+        </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.6/semantic.min.js"></script>
+    <script src="./localforage.min.js"></script>
+    <script>
+        $(function () {
+            "use strict";
+            $(".ui.form").form({
+                fields: {
+                    email: {
+                        identifier: "email",
+                        rules: [{
+                            type: "email",
+                            prompt: "Please valid email",
+                        }, ],
+                    },
+                    password: {
+                        identifier: "password",
+                        rules: [{
+                            type: "empty",
+                            prompt: "Password can not be empty",
+                        }, ],
+                    },
+                },
+                onSuccess: function (event, fields) {
+                    $(".submit.button").addClass("disabled loading");
+                    let data = {
+                        action: "authenticate",
+                        fields: fields,
+                    }
+                    fetch(
+                        "https://script.google.com/macros/s/AKfycbyUFgmcKZ8d_fNqVu21UX1rLGUaHObnaSgbqvUyEbYTsmzbfj2J/exec", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "text/plain"
+                            },
+                            body: JSON.stringify(data)
+                        }
+                    ).then((response) => response.json()).then(data => {
+                        let courses = [];
+                        if (data.status) {
+                            let name = data.data[0];
+                            let email = data.data[2];
+                            console.log([data.data[0], data.data[2]])
+                            for (let i = 8; i < 23; i++)
+                                if (data.data[i]) courses.push(data.data[i])
+
+                            localforage.setItem("session", {
+                                name: name,
+                                email: email,
+                                courses: courses
+                            }).then(_ => window.location.assign("./"))
+
+                        } else {
+                            $('.negative.message').removeClass('hidden');
+                            $('.submit.button').removeClass('disabled loading');
+                        }
+                        $(".submit.button").removeClass("disabled loading");
+                    }).catch((err) => {
+                        $('.negative.message').removeClass('hidden');
+                        $('.submit.button').removeClass('disabled loading');
+
+                        console.log(err)
+                    })
+
+
+                    return false;
+                },
+                onFailure(_formErrors, fields) {
+
+                    return false;
+                },
+            });
+        });
+    </script>
+</body>
+
+</html>

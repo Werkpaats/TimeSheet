@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Hour Registration | Home</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.6/semantic.min.css" />
+    <style type="text/css">
+        html body {
+            background-color: #f5f5f6;
+            font-family: "Roboto", lato, Helvetica, Arial, sans-serif;
+            height: 100%;
+            width: 100%;
+        }
+
+        main {
+            margin: 2em;
+        }
+    </style>
+</head>
+
+<body>
+    <main class="ui container">
+        <h1 class="ui header"></h1>
+        <form class="ui form">
+            <table class="ui celled  striped table">
+                <thead>
+                    <tr></tr>
+                </thead>
+                <tbody>
+                </tbody>
+                <tfoot>
+                </tfoot>
+            </table>
+            <button class="ui submit button" type="submit">Submit</button>
+        </form>
+
+    </main>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"
+        integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fomantic-ui/2.8.6/semantic.min.js"></script>
+    <script src="./localforage.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.27.0/moment.min.js"></script>
+    <script>
+        $(async function () {
+            let teacher = "";
+            let courses = [];
+            await localforage.getItem('session', function (err, value) {
+                if (!value) window.location.assign("./login.html")
+                teacher = value.name;
+                courses = value.courses;
+                $('.header').html(teacher)
+                renderCourses(courses)
+            });
+
+
+            function renderCourses(courses) {
+                $('thead tr').append(`<th>Courses</th>`);
+                for (let day = 1; day < 8; day++) {
+                    $('thead tr').append(
+                        `<th>${moment().subtract(8 - day, 'days').format("MMM DD, YYYY")}</th>`)
+                }
+
+                courses.forEach(course => {
+                    let td = `<td>${course.charAt(0).toUpperCase() + course.slice(1)}</td>`
+
+                    for (let day = 1; day < 8; day++) {
+                        let date = moment().subtract(8 - day, 'days').format("YYYY-MM-DD")
+                        td +=
+                            `<td>
+                                <div class="field">
+                                    <input type="number" name="${course}:${date}" value="0">
+                                </div>
+                            </td>`
+                        $('.ui.form').form('add fields', [`${course}:${date}`])
+                        $('.ui.form').form('add field', `${course}:${date}`, {
+                            rules: [{
+                                type: 'empty',
+                                prompt: 'Field can not be empty'
+                            }]
+                        })
+                    }
+                    $('tbody').append(`<tr>${td}<tr>`)
+
+
+                    $('.ui.form').form({
+                        inline: true,
+                        onSuccess: function (event, fields) {
+                            $(".submit.button").addClass("disabled loading");
+                            addRecord(fields).then((value)=>{
+                                console.log(value)
+                                alert("Records have been added!")
+                                $(".submit.button").removeClass("disabled loading");
+                            }).catch(err=>{
+                                console.log(err);
+                                
+                                $(".submit.button").removeClass("disabled loading");
+                                alert("There was an error, record wasn't added")
+                            })
+                            return false
+                        },
+                        onFailure: function (event, fields) {
+                            console.log("fail")
+                            return false
+                        },
+                    })
+                });
+            }
+
+            function addRecord(fields) {
+                return new Promise((resolve, reject) => {
+                    const url =
+                        "https://script.google.com/macros/s/AKfycbyUFgmcKZ8d_fNqVu21UX1rLGUaHObnaSgbqvUyEbYTsmzbfj2J/exec";
+                    let payload = {
+                        action: "addRecord",
+                        data: {
+                            name: teacher,
+                            fields: fields
+                        }
+                    }
+                    const options = {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "text/plain",
+                        },
+                        body: JSON.stringify(payload),
+                    };
+                    fetch(url, options)
+                        .then(response => response.json())
+                        .then(data => resolve(data))
+                        .catch(err => reject(err))
+                })
+
+
+            }
+            // function fetchCourses(email, password) {
+            //     return new Promise((resolve, reject) => {
+            // const url =
+            //     "https://script.google.com/macros/s/AKfycbyUFgmcKZ8d_fNqVu21UX1rLGUaHObnaSgbqvUyEbYTsmzbfj2J/exec";
+            //         const payload = {
+            //             action: "getCourses",
+            //             fields: {
+            //                 email: email,
+            //                 password: password,
+            //             },
+            //         };
+            // const options = {
+            //     method: "POST",
+            //     headers: {
+            //         "Content-Type": "text/plain",
+            //     },
+            //     body: JSON.stringify(payload),
+            // };
+            // fetch(url, options)
+            //     .then(response => response.json())
+            //     .then(data => resolve(data))
+            //     .catch(err => reject(err))
+            //     });
+            // }
+        });
+    </script>
+</body>
+
+</html>
