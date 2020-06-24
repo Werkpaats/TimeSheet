@@ -17,6 +17,25 @@
         main {
             margin: 2em;
         }
+
+        .rotation-wrapper-outer {
+            display: table;
+        }
+
+        .rotation-wrapper-inner {
+            padding: 0 0 100% 0;
+            height: 0;
+        }
+
+        .element-to-rotate {
+            display: block;
+            transform-origin: top left;
+            transform: rotate(-90deg) translate(-100%);
+            /* transform: rotate(90deg) translate(0, -100%); */
+            margin-top: -50%;
+
+            white-space: nowrap;
+        }
     </style>
 </head>
 
@@ -56,21 +75,34 @@
 
 
             function renderCourses(courses) {
-                $('thead tr').append(`<th>Courses</th>`);
-                for (let day = 1; day < 8; day++) {
-                    $('thead tr').append(
-                        `<th>${moment().subtract(8 - day, 'days').format("MMM DD, YYYY")}</th>`)
-                }
+                $('thead tr').append(`<th>Date</th>`);
+                // for (let day = 1; day < 8; day++) {
+                //     // $('thead tr').append(`<th>${moment().subtract(8 - day, 'days').format("MMM DD, YYYY")}</th>` )
+                //     $('thead tr').append(
+                //         `<th><div class="rotation-wrapper-outer">
+                //             <div class="rotation-wrapper-inner">
+                //             <p class="element-to-rotate">${moment().subtract(8 - day, 'days').format("MMM DD, YYYY")}</p>
+                //             </div>    
+                //         </div></th>
+                //         `)
 
+                // }
                 courses.forEach(course => {
-                    let td = `<td>${course.charAt(0).toUpperCase() + course.slice(1)}</td>`
-
-                    for (let day = 1; day < 8; day++) {
-                        let date = moment().subtract(8 - day, 'days').format("YYYY-MM-DD")
+                    $('thead tr').append(`<th><div class="rotation-wrapper-outer">
+                            <div class="rotation-wrapper-inner">
+                            <p class="element-to-rotate">${course.charAt(0).toUpperCase() + course.slice(1)}</p>
+                            </div>    
+                        </div></th>
+                        `)
+                });
+                for (let day = 1; day < 8; day++) {
+                    let date = moment().subtract(8 - day, 'days').format("YYYY-MM-DD")
+                    let td = `<td>${date}</td>`
+                    courses.forEach((course) => {
                         td +=
                             `<td>
                                 <div class="field">
-                                    <input type="number" name="${course}:${date}" value="0">
+                                    <input type="number" max="24" name="${course}:${date}" value="0">
                                 </div>
                             </td>`
                         $('.ui.form').form('add fields', [`${course}:${date}`])
@@ -80,22 +112,23 @@
                                 prompt: 'Field can not be empty'
                             }]
                         })
-                    }
+                    })
                     $('tbody').append(`<tr>${td}<tr>`)
-
-
                     $('.ui.form').form({
                         inline: true,
                         onSuccess: function (event, fields) {
+                            console.log(fields)
                             $(".submit.button").addClass("disabled loading");
-                            addRecord(fields).then((value)=>{
+                            addRecord(fields).then((value) => {
                                 console.log(value)
                                 alert("Records have been added!")
-                                $(".submit.button").removeClass("disabled loading");
-                            }).catch(err=>{
+                                $(".submit.button").removeClass(
+                                    "disabled loading");
+                            }).catch(err => {
                                 console.log(err);
-                                
-                                $(".submit.button").removeClass("disabled loading");
+
+                                $(".submit.button").removeClass(
+                                    "disabled loading");
                                 alert("There was an error, record wasn't added")
                             })
                             return false
@@ -105,7 +138,53 @@
                             return false
                         },
                     })
-                });
+                }
+                // courses.forEach(course => {
+                //     let td = `<td>${course.charAt(0).toUpperCase() + course.slice(1)}</td>`
+
+                //     for (let day = 1; day < 8; day++) {
+                //         let date = moment().subtract(8 - day, 'days').format("YYYY-MM-DD")
+                //         td +=
+                //             `<td>
+                //                 <div class="field">
+                //                     <input type="number" max="24" name="${course}:${date}" value="0">
+                //                 </div>
+                //             </td>`
+                // $('.ui.form').form('add fields', [`${course}:${date}`])
+                // $('.ui.form').form('add field', `${course}:${date}`, {
+                //     rules: [{
+                //         type: 'empty',
+                //         prompt: 'Field can not be empty'
+                //     }]
+                // })
+                //     }
+                //     $('tbody').append(`<tr>${td}<tr>`)
+
+
+                // $('.ui.form').form({
+                //     inline: true,
+                //     onSuccess: function (event, fields) {
+                //         $(".submit.button").addClass("disabled loading");
+                //         addRecord(fields).then((value) => {
+                //             console.log(value)
+                //             alert("Records have been added!")
+                //             $(".submit.button").removeClass(
+                //                 "disabled loading");
+                //         }).catch(err => {
+                //             console.log(err);
+
+                //             $(".submit.button").removeClass(
+                //                 "disabled loading");
+                //             alert("There was an error, record wasn't added")
+                //         })
+                //         return false
+                //     },
+                //     onFailure: function (event, fields) {
+                //         console.log("fail")
+                //         return false
+                //     },
+                // })
+                // });
             }
 
             function addRecord(fields) {
