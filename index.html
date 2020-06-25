@@ -164,7 +164,7 @@
                         window.location.assign("./login.html")
                     }
                     for (let day = 1; day < amountOfDays; day++) {
-                        let date = moment().format(
+                        let date = moment().subtract(day, "days").format(
                             "YYYY-MM-DD"
                         ); //This is the international format that is required to create a datae using new Date()
                         let formattedDate = moment().subtract(day, "days").format("ddd-DD-MM-YYYY");
