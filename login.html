@@ -101,16 +101,15 @@
                     ).then((response) => response.json()).then(data => {
                         let courses = [];
                         if (data.status) {
-                            let name = data.data[0];
-                            let email = data.data[2];
-                            console.log([data.data[0], data.data[2]])
                             for (let i = 8; i < 23; i++)
                                 if (data.data[i]) courses.push(data.data[i])
 
                             localforage.setItem("session", {
-                                name: name,
-                                email: email,
-                                courses: courses
+                                index: data.index,
+                                name: data.data[0],
+                                email: data.data[2],
+                                courses: courses,
+                                lastSubmission: data.data[6],
                             }).then(_ => window.location.assign("./"))
 
                         } else {

@@ -99,10 +99,14 @@
             let teacher = "";
             let courses = [];
             let fieldsToValidate = [];
+            let lastSubmission = ""
+            let index = 0; // the position of teacher record in the sheet
             await localforage.getItem('session', function (err, value) {
                 if (!value) window.location.assign("./login.html")
                 teacher = value.name;
                 courses = value.courses;
+                lastSubmission = value.lastSubmission;
+                index = value.index;
                 $('.header').html(teacher)
                 renderCourses(courses)
             });
@@ -123,12 +127,13 @@
                         </div></th>
                         `)
                 });
-                let amountOfDays = 14
-                for (let day = 1; day < amountOfDays; day++) {
-                    let date = moment().subtract(day, 'days').format("DD-MM-YYYY");
-                    let formattedDate = moment().subtract(day, 'days').format("ddd-MMM-YYYY");
-                    let td = `<td>${formattedDate}</td>`
 
+                if (!lastSubmission) {
+                    let date = moment().format(
+                        "YYYY-MM-DD"
+                    ); //This is the international format that is required to create a datae using new Date()
+                    let formattedDate = moment().format("ddd-DD-MM-YYYY");
+                    let td = `<td>${formattedDate}</td>`
                     courses.forEach((course) => {
                         td +=
                             `<td>
@@ -141,26 +146,62 @@
                     })
                     $('tbody').append(`<tr>${td}<tr>`)
 
+                } else {
+                    console.log(lastSubmission)
+                    var prevDate = moment(new Date(lastSubmission));
+                    var currentDate = moment();
+                    var diff = currentDate.diff(prevDate);
+                    var diffInDays = prevDate.diff(currentDate, 'days');
 
+                    let amountOfDays = Math.abs(diffInDays)
+                    if (!amountOfDays) {
+                        alert("Already submitted for the day!, come back tomorrow.")
+                        localforage.clear();
+                        window.location.assign("./login.html")
+                    }
+                    for (let day = 1; day < amountOfDays; day++) {
+                        let date = moment().format(
+                            "YYYY-MM-DD"
+                        ); //This is the international format that is required to create a datae using new Date()
+                        let formattedDate = moment().subtract(day -1, "days").format("ddd-DD-MM-YYYY");
+                        let td = `<td>${formattedDate}</td>`
+
+                        courses.forEach((course) => {
+                            td +=
+                                `<td>
+                            <div class="field">
+                                <input type="number" max="24" name="${course}:${date}">
+                            </div>
+                        </td>`
+
+                            fieldsToValidate.push(`${course}:${date}`)
+                        })
+                        $('tbody').append(`<tr>${td}<tr>`)
+
+                    }
                 }
+
 
             }
             $.fn.form.settings.rules.maxNum = function (value, condition) {
-                return (value <= condition) ? true : false
+
+                return (parseInt(value) <= parseInt(condition)) ? true : false
             }
             $.fn.form.settings.rules.minNum = function (value, condition) {
-                return (!value || value >= condition) ? true : false
+                return (!parseInt(value) || parseInt(value) >= parseInt(condition)) ? true : false
             }
 
             $('.ui.form').form({
                 inline: true,
                 onSuccess: function (event, fields) {
                     $(".submit.button").addClass("disabled loading");
-                    addRecord(fields).then((value) => {
+                    addRecord(index, fields).then((value) => {
                         console.log(value)
                         alert("Records have been added!")
                         $(".submit.button").removeClass(
                             "disabled loading");
+                        localforage.clear();
+                        window.location.assign("./login.html")
                     }).catch(err => {
                         console.log(err);
 
@@ -172,7 +213,7 @@
                     return false
                 },
                 onFailure: function (event, fields) {
-                    console.log("fail")
+                    console.log(event)
                     return false
                 },
             })
@@ -180,20 +221,13 @@
 
                 $('.ui.form').form('add rule', field, {
                     rules: [{
-                            type: 'maxNum[24]',
-                            prompt: 'Field can not be empty'
-                        },
-                        {
-                            type: 'minNum[0]',
-                            prompt: 'Field can not be empty'
-                        }
-                    ]
+                        type: 'maxNum[24]',
+                        prompt: 'Field can not greater then 24'
+                    }]
                 })
             })
 
-
-
-            function addRecord(fields) {
+            function addRecord(index, fields) {
                 return new Promise((resolve, reject) => {
                     let data = {}
                     for (field in fields) {
@@ -205,8 +239,10 @@
                     let payload = {
                         action: "addRecord",
                         data: {
+                            index: index,
                             name: teacher,
-                            fields: data
+                            fields: data,
+                            dateSubmitted: moment().format()
                         }
                     }
                     const options = {
