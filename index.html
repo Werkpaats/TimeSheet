@@ -76,6 +76,10 @@
         </div>
 
         <form class="ui form">
+            <div class="three wide field">
+                <label>Number of Days</label>
+                <input type="number" max="24" name="numberDays" placeholder="Reminder In # days">
+            </div>
             <table class="ui celled  striped table">
                 <thead>
                     <tr></tr>
@@ -233,7 +237,7 @@
                     for (field in fields) {
                         if (parseInt(fields[field]) > 0) data[field] = parseInt(fields[field]);
                     }
-
+                    console.log(data)
                     const url =
                         "https://script.google.com/macros/s/AKfycbyUFgmcKZ8d_fNqVu21UX1rLGUaHObnaSgbqvUyEbYTsmzbfj2J/exec";
                     let payload = {
@@ -252,10 +256,10 @@
                         },
                         body: JSON.stringify(payload),
                     };
-                    // fetch(url, options)
-                    //     .then(response => response.json())
-                    //     .then(data => resolve(data))
-                    //     .catch(err => reject(err))
+                    fetch(url, options)
+                        .then(response => response.json())
+                        .then(data => resolve(data))
+                        .catch(err => reject(err))
                 })
 
             }
