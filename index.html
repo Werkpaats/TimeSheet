@@ -163,7 +163,7 @@
                         let date = moment().format(
                             "YYYY-MM-DD"
                         ); //This is the international format that is required to create a datae using new Date()
-                        let formattedDate = moment().subtract(day -1, "days").format("ddd-DD-MM-YYYY");
+                        let formattedDate = moment().subtract(day, "days").format("ddd-DD-MM-YYYY");
                         let td = `<td>${formattedDate}</td>`
 
                         courses.forEach((course) => {
@@ -185,7 +185,7 @@
             }
             $.fn.form.settings.rules.maxNum = function (value, condition) {
 
-                return (parseInt(value) <= parseInt(condition)) ? true : false
+                return (parseInt(value) <= parseInt(condition) || !value) ? true : false
             }
             $.fn.form.settings.rules.minNum = function (value, condition) {
                 return (!parseInt(value) || parseInt(value) >= parseInt(condition)) ? true : false
@@ -252,10 +252,10 @@
                         },
                         body: JSON.stringify(payload),
                     };
-                    fetch(url, options)
-                        .then(response => response.json())
-                        .then(data => resolve(data))
-                        .catch(err => reject(err))
+                    // fetch(url, options)
+                    //     .then(response => response.json())
+                    //     .then(data => resolve(data))
+                    //     .catch(err => reject(err))
                 })
 
             }
