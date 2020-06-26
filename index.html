@@ -151,19 +151,20 @@
                     $('tbody').append(`<tr>${td}<tr>`)
 
                 } else {
-                    console.log(lastSubmission)
+                    
                     var prevDate = moment(new Date(lastSubmission));
                     var currentDate = moment();
                     var diff = currentDate.diff(prevDate);
                     var diffInDays = prevDate.diff(currentDate, 'days');
-
+                    console.log(Math.abs(diffInDays));
+                    
                     let amountOfDays = Math.abs(diffInDays)
                     if (!amountOfDays) {
                         alert("Already submitted for the day!, come back tomorrow.")
                         localforage.clear();
                         window.location.assign("./login.html")
                     }
-                    for (let day = 1; day < amountOfDays; day++) {
+                    for (let day = 0; day < amountOfDays; day++) {
                         let date = moment().subtract(day, "days").format(
                             "YYYY-MM-DD"
                         ); //This is the international format that is required to create a datae using new Date()
