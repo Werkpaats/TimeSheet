@@ -190,10 +190,10 @@
             }
             $.fn.form.settings.rules.maxNum = function (value, condition) {
 
-                return (parseInt(value) <= parseInt(condition) || !value) ? true : false
+                return (parseFloat(value) <= parseFloat(condition) || !value) ? true : false
             }
             $.fn.form.settings.rules.minNum = function (value, condition) {
-                return (!parseInt(value) || parseInt(value) >= parseInt(condition)) ? true : false
+                return (!parseFloat(value) || parseFloat(value) >= parseFloat(condition)) ? true : false
             }
 
             $('.ui.form').form({
@@ -236,7 +236,7 @@
                 return new Promise((resolve, reject) => {
                     let data = {}
                     for (field in fields) {
-                        if (parseInt(fields[field]) > 0) data[field] = parseInt(fields[field]);
+                        if (parseFloat(fields[field]) > 0) data[field] = parseFloat(fields[field]);
                     }
                     console.log(data)
                     const url =
