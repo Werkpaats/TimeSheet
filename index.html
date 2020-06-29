@@ -80,7 +80,7 @@
                 <label>Number of Days</label>
                 <input type="number" max="24" name="numberDays" placeholder="Reminder In # days">
             </div>
-            <table class="ui celled  striped table">
+            <table class="ui celled striped table">
                 <thead>
                     <tr></tr>
                 </thead>
@@ -114,6 +114,24 @@
                 $('.header').html(teacher)
                 renderCourses(courses)
             });
+            //rotate headings if less than 5
+            if (courses.length < 5) {
+
+                document.querySelectorAll('.rotation-wrapper-inner p').forEach((element, index) => {
+                    element.classList.remove('element-to-rotate')
+
+                })
+
+                document.querySelectorAll('th div div').forEach((element, index) => {
+
+                    element.classList.remove('rotation-wrapper-inner')
+
+
+                })
+
+
+            }
+
             let logoutBtn = $('.logout.button').click(() => {
                 localforage.clear();
                 window.location.assign("./login.html")
@@ -151,13 +169,12 @@
                     $('tbody').append(`<tr>${td}<tr>`)
 
                 } else {
-                    
+
                     var prevDate = moment(new Date(lastSubmission));
                     var currentDate = moment();
                     var diff = currentDate.diff(prevDate);
                     var diffInDays = prevDate.diff(currentDate, 'days');
-                    console.log(Math.abs(diffInDays));
-                    
+
                     let amountOfDays = Math.abs(diffInDays)
                     if (!amountOfDays) {
                         alert("Already submitted for the day!, come back tomorrow.")
@@ -175,7 +192,7 @@
                             td +=
                                 `<td>
                             <div class="field">
-                                <input type="number" max="24" name="${course}:${date}">
+                                <input type="number" max="24" min="0" step="0.1" name="${course}:${date}">
                             </div>
                         </td>`
 
